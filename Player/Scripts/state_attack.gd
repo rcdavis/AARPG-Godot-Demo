@@ -11,19 +11,26 @@ var is_attacking: bool = false
 
 @onready var idle: State = $"../Idle"
 @onready var walk: State = $"../Walk"
+@onready var hurt_box: HurtBox = $"../../Interactions/HurtBox"
 
 func enter():
 	player.update_animation("attack")
 	attack_anim_player.play("attack_" + player.anim_direction())
 	animation_player.animation_finished.connect(end_attack)
+	
 	audio.stream = attack_sound
 	audio.pitch_scale = randf_range(0.9, 1.1)
 	audio.play()
+	
 	is_attacking = true
+	
+	await get_tree().create_timer(0.075).timeout
+	hurt_box.monitoring = true
 
 func exit():
 	animation_player.animation_finished.disconnect(end_attack)
 	is_attacking = false
+	hurt_box.monitoring = false
 
 ## What happens during the _process update in this State
 func process(delta: float) -> State:
